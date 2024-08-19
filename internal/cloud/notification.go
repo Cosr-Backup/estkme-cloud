@@ -10,7 +10,7 @@ import (
 
 func handleProcessNotification(ctx context.Context, conn *Conn, _ []byte) error {
 	defer conn.Close()
-	conn.Send(TagMessageBox, []byte("Processing notifications..."))
+	conn.Send(TagMessageBox, []byte("Processing notifications."))
 	if err := processNotification(ctx, conn); err != nil {
 		slog.Error("failed to process notification", "error", err)
 		return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))

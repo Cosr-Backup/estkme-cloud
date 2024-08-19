@@ -63,7 +63,7 @@ func handleCommandDownload(ctx context.Context, conn *Conn, data []byte) error {
 	return lpac.NewCmd(ctx, conn.APDU).ProfileDownload(activationCode, func(current string, profileMetadata *lpac.Profile) error {
 		if current == lpac.ProgressMetadataParse {
 			template := `
-Downloading Profile...
+Downloading Profile.
 Provider Name: %s
 Profile Name: %s
 ICCID: %s
@@ -172,7 +172,7 @@ func handleCommandProcessNotification(ctx context.Context, conn *Conn, arguments
 	if err != nil {
 		return err
 	}
-	if err := conn.Send(TagMessageBox, []byte("Processing notification...")); err != nil {
+	if err := conn.Send(TagMessageBox, []byte("Processing notification.")); err != nil {
 		return err
 	}
 	if err := lpac.NewCmd(ctx, conn.APDU).NotificationProcess(seqNumber, false, nil); err != nil {
