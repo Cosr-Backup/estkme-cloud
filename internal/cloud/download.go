@@ -39,12 +39,11 @@ var (
 func handleDownloadProfile(ctx context.Context, conn *Conn, data []byte) error {
 	defer conn.Close()
 	if bytes.HasPrefix(data, GSMSlashSign) {
-		err := handleCommand(ctx, conn, data)
-		if err != nil {
+		if err := handleCommand(ctx, conn, data); err != nil {
 			slog.Error("failed to handle command", "error", err)
 			return conn.Send(TagMessageBox, []byte("Command failed \n"+ToTitle(err.Error())))
 		}
-		return err
+		return nil
 	}
 
 	conn.Send(TagMessageBox, []byte("Your profile is being downloaded.\nIt may take a few minutes.\nTo avoid download failure, please do not lock your phone."))
