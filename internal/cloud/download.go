@@ -91,12 +91,12 @@ func decodeActivationCode(activationCode []byte) (*lpac.ActivationCode, error) {
 		parts = bytes.Split(activationCode[:index], GSMDollarSign)
 	} else {
 		parts = bytes.Split(activationCode, GSMDollarSign)
-		fmt.Println("activationCode", activationCode, "parts", parts)
 	}
 
 	if len(parts) < 2 && string(parts[0]) != "LPA:1" {
 		return nil, ErrInvalidActivationCode
 	}
+
 	var matchingId string
 	if len(parts) > 2 {
 		matchingId = string(parts[2])
