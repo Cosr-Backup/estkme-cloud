@@ -62,7 +62,7 @@ func handleCommandDownload(ctx context.Context, conn *Conn, data []byte) error {
 	return lpac.NewCmd(ctx, conn.APDU).ProfileDownload(activationCode, func(current string, profileMetadata *lpac.Profile) error {
 		if current == lpac.ProgressMetadataParse {
 			template := `
-Downloading Profile.
+Downloading Profile
 Provider Name: %s
 Profile Name: %s
 ICCID: %s
