@@ -146,7 +146,7 @@ Please replace `<custom_imei>` with the actual IMEI.
 
 ##### Consume Data
 
-You can also use the following command to consume your cellular data:
+You can use the following command to consume your cellular data:
 ```plaintext
 /data <amount_of_data_in_KiB>
 ```
