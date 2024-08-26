@@ -194,7 +194,7 @@ func handleCommandConsumeData(conn *Conn, arguments [][]byte) error {
 		return ErrInvalidDataSize
 	}
 
-	message := fmt.Sprintf("You used %d KiB data", kb)
+	message := fmt.Sprintf("You used %d KiB data.", kb)
 	count := kb * 1024 / 256
 	for i := 1; i <= count; i++ {
 		var placeholder []byte
