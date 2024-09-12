@@ -9,7 +9,6 @@ import (
 
 	"github.com/damonto/estkme-cloud/internal/cloud"
 	"github.com/damonto/estkme-cloud/internal/config"
-	"github.com/damonto/estkme-cloud/internal/lpac"
 )
 
 var Version string
@@ -19,9 +18,6 @@ func init() {
 		panic(err)
 	}
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me cloud enhance server listen address")
-	flag.StringVar(&config.C.Dir, "dir", "/tmp/estkme-cloud", "the directory to store lpac")
-	flag.StringVar(&config.C.Version, "version", "v2.1.0", "the version of lpac to download")
-	flag.BoolVar(&config.C.DontDownload, "dont-download", false, "don't download lpac")
 	flag.StringVar(&config.C.Advertising, "advertising", "", "advertising message to show on the server (max: 100 characters)")
 	flag.BoolVar(&config.C.Verbose, "verbose", false, "verbose mode")
 	flag.Parse()
@@ -29,7 +25,6 @@ func init() {
 
 func initApp() {
 	config.C.LoadEnv()
-
 	if config.C.Verbose {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 		slog.Warn("verbose mode is enabled, this will print out sensitive information")
@@ -37,12 +32,6 @@ func initApp() {
 	if err := config.C.IsValid(); err != nil {
 		slog.Error("invalid configuration", "error", err)
 		os.Exit(1)
-	}
-	if !config.C.DontDownload {
-		if err := lpac.Download(config.C.Dir, config.C.Version); err != nil {
-			slog.Error("failed to download lpac", "error", err)
-			os.Exit(1)
-		}
 	}
 }
 

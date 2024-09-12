@@ -18,13 +18,11 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - { os: linux, arch: 386, name: linux-386 }
-          - { os: linux, arch: amd64, name: linux-amd64 }
-          - { os: linux, arch: arm, name: linux-arm }
-          - { os: linux, arch: arm64, name: linux-arm64 }
-          - { os: linux, arch: riscv64, name: linux-riscv64 }
-          - { os: darwin, arch: amd64, name: macos-amd64 }
-          - { os: darwin, arch: arm64, name: macos-arm64 }
+          - { os: linux, arch: 386, name: linux-386, zig: x86-linux }
+          - { os: linux, arch: amd64, name: linux-amd64, zig: x86_64-linux }
+          - { os: linux, arch: arm, name: linux-arm, zig: arm-linux-musleabihf }
+          - { os: linux, arch: arm64, name: linux-arm64, zig: aarch64-linux }
+          - { os: linux, arch: riscv64, name: linux-riscv64, zig: riscv64-linux }
 
     steps:
       - name: Checkout code
@@ -33,15 +31,19 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Go
-        id: go
         uses: actions/setup-go@v5
         with:
           go-version: 1.23
 
+      - name: Set up Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+
       - name: Build for ${{ matrix.target.name }}
         run: |
           VERSION=$(git describe --always --tags --match "v*" --dirty="-dev")
-          CGO_ENABLED=0 GOOS=${{ matrix.target.os }} GOARCH=${{ matrix.target.arch }} go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud-${{ matrix.target.name }}
+          CC="zig cc -target ${{ matrix.target.zig }}" CGO_ENABLED=1 GOOS=${{ matrix.target.os }} GOARCH=${{ matrix.target.arch }} go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud-${{ matrix.target.name }}
 
       - name: Upload ${{ matrix.target.name }} to Artifact
         uses: actions/upload-artifact@v4

@@ -22,7 +22,7 @@ ARG VERSION
 COPY . .
 
 RUN set -eux \
-    && CGO_ENABLED=0 go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud main.go
+    && CGO_ENABLED=1 go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud main.go
 
 # Production
 FROM alpine:3.20 AS production

@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/damonto/estkme-cloud/internal/lpac"
+	"github.com/damonto/estkme-cloud/internal/lpa"
+	"github.com/damonto/libeuicc-go"
 )
 
 func handleProcessNotification(ctx context.Context, conn *Conn, _ []byte) error {
@@ -19,13 +20,17 @@ func handleProcessNotification(ctx context.Context, conn *Conn, _ []byte) error 
 }
 
 func processNotification(ctx context.Context, conn *Conn) error {
-	cmd := lpac.NewCmd(ctx, conn.APDU)
-	notifications, err := cmd.NotificationList()
+	l, err := lpa.New(conn.APDU)
+	if err != nil {
+		return err
+	}
+	defer l.Close()
+	notifications, err := l.GetNotifications()
 	if err != nil {
 		return err
 	}
 	for _, notification := range notifications {
-		if err := cmd.NotificationProcess(notification.SeqNumber, notification.ProfileManagementOperation != lpac.NotificationProfileManagementOperationDelete, nil); err != nil {
+		if err := l.ProcessNotification(notification.SeqNumber, notification.ProfileManagementOperation != libeuicc.NotificationProfileManagementOperationDelete); err != nil {
 			slog.Error("error processing notification", "seqNumber", notification.SeqNumber, "ICCID", notification.ICCID, "operation", notification.ProfileManagementOperation, "error", err)
 			if err := conn.Send(TagMessageBox, []byte(fmt.Sprintf("Process notification %d failed\n%s", notification.SeqNumber, err.Error()))); err != nil {
 				return err

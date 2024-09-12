@@ -10,7 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/damonto/estkme-cloud/internal/lpac"
+	"github.com/damonto/estkme-cloud/internal/lpa"
+	"github.com/damonto/libeuicc-go"
 )
 
 var (
@@ -59,21 +60,43 @@ func handleCommandDownload(ctx context.Context, conn *Conn, data []byte) error {
 	if err != nil {
 		return err
 	}
-	return lpac.NewCmd(ctx, conn.APDU).ProfileDownload(activationCode, func(current string, profileMetadata *lpac.Profile) error {
-		if current == lpac.ProgressMetadataParse {
+	l, err := lpa.New(conn.APDU)
+	if err != nil {
+		return err
+	}
+	defer l.Close()
+	err = l.Download(ctx, activationCode, &libeuicc.DownloadOption{
+		ConfirmFunc: func(profileMetadata *libeuicc.ProfileMetadata) bool {
 			template := `
-Downloading Profile
-Provider Name: %s
-Profile Name: %s
-ICCID: %s
-`
-			return conn.Send(TagMessageBox, []byte(fmt.Sprintf(template, profileMetadata.ProviderName, profileMetadata.ProfileName, profileMetadata.ICCID)))
-		}
-		return nil
+
+	Downloading Profile
+	Provider Name: %s
+	Profile Name: %s
+	ICCID: %s
+	`
+			if err := conn.Send(TagMessageBox, []byte(fmt.Sprintf(template, profileMetadata.ProviderName, profileMetadata.ProfileName, profileMetadata.ICCID))); err != nil {
+				slog.Error("failed to send download confirmation message", "error", err)
+				return false
+			}
+			return true
+		},
+		ConfirmationCodeFunc: func() string {
+			if err := conn.Send(TagMessageBox, []byte("Download canceled. \n Your profile requires a confirmation code but you do not provide it.")); err != nil {
+				slog.Error("failed to send download cancel message", "error", err)
+			}
+			return ""
+		},
 	})
+	if err != nil {
+		if errors.Is(err, libeuicc.ErrDownloadCanceled) {
+			conn.Send(TagMessageBox, []byte("Download canceled."))
+		}
+		return err
+	}
+	return nil
 }
 
-func decodeActivationCode(activationCode []byte) (*lpac.ActivationCode, error) {
+func decodeActivationCode(activationCode []byte) (*libeuicc.ActivationCode, error) {
 	if bytes.Contains(activationCode, ActivationCodeSchemaQRCyou) {
 		activationCode, _ = bytes.CutPrefix(activationCode, []byte("https://"))
 		activationCode, _ = bytes.CutPrefix(activationCode, ActivationCodeSchemaQRCyou)
@@ -108,7 +131,7 @@ func decodeActivationCode(activationCode []byte) (*lpac.ActivationCode, error) {
 			return nil, errors.New("confirmation code is required" + "\n" + string(bytes.Join(parts, GSMDollarSign)))
 		}
 	}
-	return &lpac.ActivationCode{
+	return &libeuicc.ActivationCode{
 		SMDP:             string(parts[1]),
 		MatchingId:       matchingId,
 		ConfirmationCode: confirmationCode,
@@ -135,7 +158,12 @@ func handleListNotifications(ctx context.Context, conn *Conn, arguments [][]byte
 	if len(arguments) > 0 {
 		filterOperation = string(arguments[0])
 	}
-	notifications, err := lpac.NewCmd(ctx, conn.APDU).NotificationList()
+	l, err := lpa.New(conn.APDU)
+	if err != nil {
+		return err
+	}
+	defer l.Close()
+	notifications, err := l.GetNotifications()
 	if err != nil {
 		return err
 	}
@@ -149,7 +177,7 @@ func handleListNotifications(ctx context.Context, conn *Conn, arguments [][]byte
 		if count == 0 {
 			break
 		}
-		if filterOperation != "" && notification.ProfileManagementOperation != filterOperation {
+		if filterOperation != "" && notification.ProfileManagementOperation != libeuicc.NotificationProfileManagementOperation(filterOperation) {
 			continue
 		}
 		message += fmt.Sprintf(
@@ -174,7 +202,12 @@ func handleCommandProcessNotification(ctx context.Context, conn *Conn, arguments
 	if err := conn.Send(TagMessageBox, []byte("Processing notification.")); err != nil {
 		return err
 	}
-	if err := lpac.NewCmd(ctx, conn.APDU).NotificationProcess(seqNumber, false, nil); err != nil {
+	l, err := lpa.New(conn.APDU)
+	if err != nil {
+		return err
+	}
+	defer l.Close()
+	if err := l.ProcessNotification(seqNumber, false); err != nil {
 		return err
 	}
 	return conn.Send(TagMessageBox, []byte("Notification has been processed."))

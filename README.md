@@ -54,16 +54,10 @@ If you want to change the default port, lpac version or data directory, you can 
 ./estkme-cloud --help
 
 Usage of estkme-cloud:
+  -listen-address string
+        server listen address (default ":1888")
   -advertising string
         advertising message to show on the server (max: 100 characters)
-  -dir string
-        the directory to store lpac (default "/tmp/estkme-cloud")
-  -dont-download
-        don't download lpac
-  -listen-address string
-        eSTK.me cloud enhance server listen address (default ":1888")
-  -version string
-        the version of lpac to download (default "v2.0.1")
   -verbose
         verbose mode
 ```
