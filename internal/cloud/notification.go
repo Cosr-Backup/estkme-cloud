@@ -31,18 +31,18 @@ func processNotification(conn *Conn) error {
 	}
 	for _, notification := range notifications {
 		if err := l.ProcessNotification(notification.SeqNumber, notification.ProfileManagementOperation != libeuicc.NotificationProfileManagementOperationDelete); err != nil {
-			slog.Error("error processing notification", "seqNumber", notification.SeqNumber, "ICCID", notification.ICCID, "operation", notification.ProfileManagementOperation, "error", err)
+			slog.Error("error processing notification", "seqNumber", notification.SeqNumber, "ICCID", notification.Iccid, "operation", notification.ProfileManagementOperation, "error", err)
 			if err := conn.Send(TagMessageBox, []byte(fmt.Sprintf("Process notification %d failed\n%s", notification.SeqNumber, err.Error()))); err != nil {
 				return err
 			}
 		}
-		slog.Info("notification processed", "seqNumber", notification.SeqNumber, "iccid", notification.ICCID, "operation", notification.ProfileManagementOperation)
+		slog.Info("notification processed", "seqNumber", notification.SeqNumber, "iccid", notification.Iccid, "operation", notification.ProfileManagementOperation)
 		if err := conn.Send(TagMessageBox,
 			[]byte(
 				fmt.Sprintf(
 					"Notification has been processed. \n Seq number: %d \n ICCID: %s \n Operation: %s",
 					notification.SeqNumber,
-					notification.ICCID,
+					notification.Iccid,
 					notification.ProfileManagementOperation,
 				),
 			),

@@ -73,7 +73,7 @@ func handleCommandDownload(ctx context.Context, conn *Conn, data []byte) error {
 	Profile Name: %s
 	ICCID: %s
 	`
-			if err := conn.Send(TagMessageBox, []byte(fmt.Sprintf(template, profileMetadata.ProviderName, profileMetadata.ProfileName, profileMetadata.ICCID))); err != nil {
+			if err := conn.Send(TagMessageBox, []byte(fmt.Sprintf(template, profileMetadata.ProviderName, profileMetadata.ProfileName, profileMetadata.Iccid))); err != nil {
 				slog.Error("failed to send download confirmation message", "error", err)
 				return false
 			}
@@ -182,7 +182,7 @@ func handleListNotifications(conn *Conn, arguments [][]byte) error {
 		message += fmt.Sprintf(
 			"%d %s %s\n",
 			notification.SeqNumber,
-			fmt.Sprintf("%s...%s", notification.ICCID[:5], notification.ICCID[len(notification.ICCID)-4:]),
+			fmt.Sprintf("%s...%s", notification.Iccid[:5], notification.Iccid[len(notification.Iccid)-4:]),
 			notification.ProfileManagementOperation,
 		)
 		count--
