@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	"github.com/damonto/estkme-cloud/internal/config"
-	"github.com/damonto/estkme-cloud/internal/driver"
 	"github.com/damonto/libeuicc-go"
 )
 
@@ -13,7 +12,7 @@ type LPA struct {
 	*libeuicc.Libeuicc
 }
 
-func New(driver driver.APDU) (*LPA, error) {
+func New(driver libeuicc.APDU) (*LPA, error) {
 	logLevel := libeuicc.LogInfoLevel
 	if config.C.Verbose {
 		logLevel = libeuicc.LogDebugLevel
@@ -30,12 +29,6 @@ func New(driver driver.APDU) (*LPA, error) {
 func (l *LPA) Download(ctx context.Context, activationCode *libeuicc.ActivationCode, downloadOption *libeuicc.DownloadOption) error {
 	return l.sendNotificationsAfterExecution(func() error {
 		return l.DownloadProfile(ctx, activationCode, downloadOption)
-	})
-}
-
-func (l *LPA) Delete(iccid string) error {
-	return l.sendNotificationsAfterExecution(func() error {
-		return l.DeleteProfile(iccid)
 	})
 }
 
@@ -69,17 +62,4 @@ func (l *LPA) sendNotificationsAfterExecution(action func() error) error {
 		}
 	}
 	return nil
-}
-
-func (l *LPA) FindProfile(iccid string) (*libeuicc.Profile, error) {
-	profiles, err := l.GetProfiles()
-	if err != nil {
-		return nil, err
-	}
-	for _, profile := range profiles {
-		if profile.Iccid == iccid {
-			return profile, nil
-		}
-	}
-	return nil, nil
 }

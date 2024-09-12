@@ -40,7 +40,7 @@ var (
 func handleDownloadProfile(ctx context.Context, conn *Conn, data []byte) error {
 	defer conn.Close()
 	if bytes.HasPrefix(data, GSMSlashSign) {
-		if err := handleCommand(ctx, conn, data); err != nil {
+		if err := handleCommand(conn, data); err != nil {
 			slog.Error("failed to handle command", "error", err)
 			return conn.Send(TagMessageBox, []byte("Command failed \n"+ToTitle(err.Error())))
 		}
@@ -68,7 +68,6 @@ func handleCommandDownload(ctx context.Context, conn *Conn, data []byte) error {
 	err = l.Download(ctx, activationCode, &libeuicc.DownloadOption{
 		ConfirmFunc: func(profileMetadata *libeuicc.ProfileMetadata) bool {
 			template := `
-
 	Downloading Profile
 	Provider Name: %s
 	Profile Name: %s
@@ -139,21 +138,21 @@ func decodeActivationCode(activationCode []byte) (*libeuicc.ActivationCode, erro
 	}, nil
 }
 
-func handleCommand(ctx context.Context, conn *Conn, data []byte) error {
+func handleCommand(conn *Conn, data []byte) error {
 	arguments := bytes.Split(data, CommandArgumentSplitter)
 	if bytes.Equal(arguments[0], CommandConsumeData) {
 		return handleCommandConsumeData(conn, arguments[1:])
 	}
 	if bytes.Equal(arguments[0], CommandListNotifications) {
-		return handleListNotifications(ctx, conn, arguments[1:])
+		return handleListNotifications(conn, arguments[1:])
 	}
 	if bytes.Equal(arguments[0], CommandProcessNotification) {
-		return handleCommandProcessNotification(ctx, conn, arguments[1:])
+		return handleCommandProcessNotification(conn, arguments[1:])
 	}
 	return ErrCommandUnsupported
 }
 
-func handleListNotifications(ctx context.Context, conn *Conn, arguments [][]byte) error {
+func handleListNotifications(conn *Conn, arguments [][]byte) error {
 	var filterOperation string
 	if len(arguments) > 0 {
 		filterOperation = string(arguments[0])
@@ -191,7 +190,7 @@ func handleListNotifications(ctx context.Context, conn *Conn, arguments [][]byte
 	return conn.Send(TagMessageBox, []byte(strings.TrimRight(message, "\n")))
 }
 
-func handleCommandProcessNotification(ctx context.Context, conn *Conn, arguments [][]byte) error {
+func handleCommandProcessNotification(conn *Conn, arguments [][]byte) error {
 	if len(arguments) == 0 {
 		return ErrCommandSeqNumberRequired
 	}

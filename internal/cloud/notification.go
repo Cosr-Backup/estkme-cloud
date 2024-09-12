@@ -9,17 +9,17 @@ import (
 	"github.com/damonto/libeuicc-go"
 )
 
-func handleProcessNotification(ctx context.Context, conn *Conn, _ []byte) error {
+func handleProcessNotification(_ context.Context, conn *Conn, _ []byte) error {
 	defer conn.Close()
 	conn.Send(TagMessageBox, []byte("Processing notifications."))
-	if err := processNotification(ctx, conn); err != nil {
+	if err := processNotification(conn); err != nil {
 		slog.Error("failed to process notification", "error", err)
 		return conn.Send(TagMessageBox, []byte("Process failed \n"+ToTitle(err.Error())))
 	}
 	return conn.Send(TagMessageBox, []byte("All notifications have been processed successfully."))
 }
 
-func processNotification(ctx context.Context, conn *Conn) error {
+func processNotification(conn *Conn) error {
 	l, err := lpa.New(conn.APDU)
 	if err != nil {
 		return err

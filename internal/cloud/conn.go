@@ -8,8 +8,6 @@ import (
 	"log/slog"
 	"net"
 	"sync"
-
-	"github.com/damonto/estkme-cloud/internal/driver"
 )
 
 type Handler = func(ctx context.Context, conn *Conn, data []byte) error
@@ -17,7 +15,7 @@ type Handler = func(ctx context.Context, conn *Conn, data []byte) error
 type Conn struct {
 	Id       string
 	Conn     *net.TCPConn
-	APDU     driver.APDU
+	APDU     APDU
 	lock     sync.Mutex
 	ctx      context.Context
 	cancel   context.CancelFunc
