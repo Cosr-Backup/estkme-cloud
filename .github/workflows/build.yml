@@ -12,28 +12,22 @@ on:
 
 jobs:
   build:
-    name: Build for ${{ matrix.target.name }}
-    runs-on: ${{ matrix.os }}
+    name: Build for ${{ matrix.build.name }}
+    runs-on: ${{ matrix.build.runner }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        target:
-          - { os: linux, arch: 386, name: linux-386, zig: x86-linux }
-          - { os: linux, arch: amd64, name: linux-amd64, zig: x86_64-linux }
-          - { os: linux, arch: arm, name: linux-arm, zig: arm-linux-musleabihf }
-          - { os: linux, arch: arm64, name: linux-arm64, zig: aarch64-linux }
-          - { os: linux, arch: riscv64, name: linux-riscv64, zig: riscv64-linux }
-        include:
-          - os: [macos-latest]
-            target:
-              - { os: darwin, arch: amd64, name: macos-amd64, zig: x86_64-macos }
-              - { os: darwin, arch: arm64, name: macos-arm64, zig: aarch64-macos }
-          - os: [windows-latest]
-            target:
-              - { os: windows, arch: 386, name: windows-386, zig: x86-windows }
-              - { os: windows, arch: amd64, name: windows-amd64, zig: x86_64-windows }
-              - { os: windows, arch: arm64, name: windows-arm64, zig: aarch64-windows }
+        build:
+          - { runner: ubuntu-latest, os: linux, arch: 386, name: linux-386, zig: x86-linux }
+          - { runner: ubuntu-latest, os: linux, arch: amd64, name: linux-amd64, zig: x86_64-linux }
+          - { runner: ubuntu-latest, os: linux, arch: arm, name: linux-arm, zig: arm-linux-musleabihf }
+          - { runner: ubuntu-latest, os: linux, arch: arm64, name: linux-arm64, zig: aarch64-linux }
+          - { runner: ubuntu-latest, os: linux, arch: riscv64, name: linux-riscv64, zig: riscv64-linux }
+          - { runner: macos-latest, os: darwin, arch: amd64, name: macos-amd64, zig: x86_64-macos }
+          - { runner: macos-latest, os: darwin, arch: arm64, name: macos-arm64, zig: aarch64-macos }
+          - { runner: windows-latest, os: windows, arch: 386, name: windows-386, zig: x86-windows }
+          - { runner: windows-latest, os: windows, arch: amd64, name: windows-amd64, zig: x86_64-windows }
+          - { runner: windows-latest, os: windows, arch: arm64, name: windows-arm64, zig: aarch64-windows }
 
     steps:
       - name: Checkout code
@@ -51,16 +45,16 @@ jobs:
         with:
           version: 0.13.0
 
-      - name: Build for ${{ matrix.target.name }}
+      - name: Build for ${{ matrix.build.name }}
         run: |
           VERSION=$(git describe --always --tags --match "v*" --dirty="-dev")
-          CC="zig cc -target ${{ matrix.target.zig }}" CGO_ENABLED=1 GOOS=${{ matrix.target.os }} GOARCH=${{ matrix.target.arch }} go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud-${{ matrix.target.name }}
+          CC="zig cc -target ${{ matrix.build.zig }}" CGO_ENABLED=1 GOOS=${{ matrix.build.os }} GOARCH=${{ matrix.build.arch }} go build -trimpath -ldflags="-w -s -X main.Version=${VERSION}" -o estkme-cloud-${{ matrix.build.name }}
 
-      - name: Upload ${{ matrix.target.name }} to Artifact
+      - name: Upload ${{ matrix.build.name }} to Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: estkme-cloud-${{ matrix.target.name }}
-          path: estkme-cloud-${{ matrix.target.name }}
+          name: estkme-cloud-${{ matrix.build.name }}
+          path: estkme-cloud-${{ matrix.build.name }}
 
   release:
     name: Release
