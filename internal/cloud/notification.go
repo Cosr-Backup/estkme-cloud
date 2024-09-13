@@ -34,9 +34,9 @@ func processNotification(conn *Conn) error {
 			slog.Error("error processing notification", "seqNumber", notification.SeqNumber, "ICCID", notification.Iccid, "operation", notification.ProfileManagementOperation, "error", err)
 			if err := conn.Send(TagMessageBox, []byte(fmt.Sprintf("Process notification %d failed\n%s", notification.SeqNumber, err.Error()))); err != nil {
 				return err
-			}
+			} 
 		}
-		slog.Info("notification processed", "seqNumber", notification.SeqNumber, "iccid", notification.Iccid, "operation", notification.ProfileManagementOperation)
+		slog.Info("notification processed", "seqNumber", notification.SeqNumber, "ICCID", notification.Iccid, "operation", notification.ProfileManagementOperation)
 		if err := conn.Send(TagMessageBox,
 			[]byte(
 				fmt.Sprintf(
