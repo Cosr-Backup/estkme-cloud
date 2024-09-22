@@ -62,7 +62,7 @@ func (s *server) Listen(address string) error {
 
 func (s *server) handleConn(tcpConn *net.TCPConn) {
 	id := s.id()
-	slog.Info("new connection from", "id", id)
+	slog.Info("new connection from", "id", id, "address", tcpConn.RemoteAddr().String())
 	conn := NewConn(id, tcpConn)
 	s.manager.Add(id, conn)
 	defer conn.Close()

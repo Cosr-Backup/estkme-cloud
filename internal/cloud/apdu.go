@@ -8,8 +8,8 @@ import (
 	"github.com/damonto/libeuicc-go"
 )
 
-const (
-	APDUCommunicateTimeout = "6600"
+var (
+	APDUCommunicateTimeout = []byte{0x66, 0x00}
 )
 
 type APDU interface {
@@ -56,7 +56,7 @@ func (a *apdu) Transmit(command []byte) ([]byte, error) {
 		return r, nil
 	case <-time.After(2 * time.Minute): // If response is not received in 2 minutes, return a timeout error.
 		slog.Warn("wait for APDU command response timeout", "conn", a.conn.Id, "command", command, "response", APDUCommunicateTimeout)
-		return []byte(APDUCommunicateTimeout), nil
+		return APDUCommunicateTimeout, nil
 	}
 }
 
