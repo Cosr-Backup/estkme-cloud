@@ -56,8 +56,8 @@ If you want to change the default port, lpac version or data directory, you can 
 Usage of estkme-cloud:
   -listen-address string
         server listen address (default ":1888")
-  -advertising string
-        advertising message to show on the server (max: 100 characters)
+  -prompt string
+        prompt message to show on the server (max: 100 characters)
   -verbose
         verbose mode
 ```

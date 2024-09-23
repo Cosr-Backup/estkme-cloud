@@ -68,8 +68,8 @@ func (s *server) handleConn(tcpConn *net.TCPConn) {
 	defer conn.Close()
 	defer s.manager.Remove(id)
 
-	if config.C.Advertising != "" {
-		conn.Send(TagMessageBox, config.C.GetAdvertising())
+	if config.C.Prompt != "" {
+		conn.Send(TagMessageBox, config.C.GetPrompt())
 	}
 
 	for {

@@ -32,7 +32,7 @@ chmod +x "$DST_DIR"/estkme-cloud
 
 START_CMD="/opt/estkme-cloud/estkme-cloud"
 if [ $# -ge 1 ] && [ -n "$1" ]; then
-    START_CMD="$START_CMD --advertising='$1'"
+    START_CMD="$START_CMD --prompt='$1'"
 fi
 
 tee /etc/supervisor/conf.d/estkme-cloud.conf << EOF

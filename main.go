@@ -15,7 +15,7 @@ var Version string
 
 func init() {
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me cloud enhance server listen address")
-	flag.StringVar(&config.C.Advertising, "advertising", "", "advertising message to show on the server (max: 100 characters)")
+	flag.StringVar(&config.C.Prompt, "prompt", "", "prompt message to show on the server (max: 100 characters)")
 	flag.BoolVar(&config.C.Verbose, "verbose", false, "verbose mode")
 	flag.Parse()
 }
