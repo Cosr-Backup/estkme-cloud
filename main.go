@@ -14,9 +14,6 @@ import (
 var Version string
 
 func init() {
-	if err := os.MkdirAll("/tmp/estkme-cloud", 0755); err != nil {
-		panic(err)
-	}
 	flag.StringVar(&config.C.ListenAddress, "listen-address", ":1888", "eSTK.me cloud enhance server listen address")
 	flag.StringVar(&config.C.Advertising, "advertising", "", "advertising message to show on the server (max: 100 characters)")
 	flag.BoolVar(&config.C.Verbose, "verbose", false, "verbose mode")
