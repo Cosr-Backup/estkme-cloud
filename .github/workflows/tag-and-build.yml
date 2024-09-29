@@ -18,7 +18,7 @@ jobs:
       - name: Generate tag name
         id: generate_tag
         run: |
-          TAG_NAME="v$(date -u +'%Y%M%D%H%M')"
+          TAG_NAME="v$(date -u +'%Y%m%d%H%M')"
           COUNT=1
           while git rev-parse $TAG_NAME >/dev/null 2>&1; do
             TAG_NAME="${TAG_NAME}-${COUNT}"
