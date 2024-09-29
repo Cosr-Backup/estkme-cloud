@@ -66,6 +66,10 @@ jobs:
             type=semver,pattern={{major}}
             type=ref,event=branch
             type=ref,event=tag
+            
+      - name: Set repository owner
+        id: set_repo_owner
+        run: echo "REPO_OWNER=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1 | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Build and push by digest
         id: build
@@ -79,7 +83,7 @@ jobs:
           provenance: false
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
-          outputs: type=image,"name=ghcr.io/${{ github.repository_owner }}/estkme-cloud,docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud",push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,"name=ghcr.io/$REPO_OWNER/estkme-cloud,docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud",push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
