@@ -122,12 +122,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set repository owner
+        id: set_repo_owner
+        run: echo "REPO_OWNER_1=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1 | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ github.repository_owner }}/estkme-cloud
+            ghcr.io/${{ env.REPO_OWNER_1 }}/estkme-cloud
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
@@ -152,10 +156,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set repository owner
-        id: set_repo_owner
-        run: echo "REPO_OWNER=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1 | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
@@ -168,7 +168,7 @@ jobs:
       - name: Inspect image
         run: |
           docker buildx imagetools inspect docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud:${{ steps.meta.outputs.version }}
-          docker buildx imagetools inspect ghcr.io/${{ github.repository_owner }}/estkme-cloud:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ghcr.io/${{ env.REPO_OWNER_1 }}/estkme-cloud:${{ steps.meta.outputs.version }}
 
   cleanup:
     name: Cleanup
