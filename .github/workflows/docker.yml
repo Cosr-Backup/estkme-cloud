@@ -160,10 +160,9 @@ jobs:
         working-directory: /tmp/digests
         run: |
           set -x
-          annotations=$(jq -cr '.annotations | map((split("=")[0] + "=\"" + split("=")[1] + "\"") | "--annotation " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          annotations=$(jq -cr '.annotations | map((split("=")[" + split("=")[1] + "\"") | "--annotation " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
           tags=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-          digests=$(ls -1 | tr '\n' ' ' | sed 's#^#ghcr.io/${{ github.repository_owner }}/estkme-cloud@sha256:#' | tr '[:upper:]' '[:lower:]')
-          echo "docker buildx imagetools create $annotations $tags $digests"
+          digests=$(ls -1 | sed 's/^/ghcr.io\/${{ github.repository_owner }}\/estkme-cloud@sha256:/' | tr '\n' ' ' | tr '[:echo "Command to execute: docker buildx imagetools create $annotations $tags $digests"
           eval "docker buildx imagetools create $annotations $tags $digests"
 
       - name: Inspect image
