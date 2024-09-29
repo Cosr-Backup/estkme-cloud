@@ -149,13 +149,17 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set repository owner
+        id: set_repo_owner
+        run: echo "REPO_OWNER=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1 | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
           set -x
           annotations=$(jq -cr '.annotations | map((split("=")[0] + "=\"" + split("=")[1] + "\"") | "--annotation " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
           tags=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-          digests=$(ls -1 | sed 's/^/ghcr.io\/${{ github.repository_owner | downcase }}\/estkme-cloud@sha256:/')
+          digests=$(ls -1 | sed 's/^/ghcr.io\/$REPO_OWNER\/estkme-cloud@sha256:/')
           eval "docker buildx imagetools create $annotations $tags $digests"
 
       - name: Inspect image
