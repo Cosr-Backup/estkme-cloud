@@ -1,11 +1,14 @@
-name: Tag and Build
+name: Tag and Build on PR Merge
 
 on:
-  workflow_dispatch:
+  pull_request:
+    types: [closed]
 
 jobs:
   tag-and-build:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
