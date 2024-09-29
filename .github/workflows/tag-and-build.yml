@@ -26,6 +26,11 @@ jobs:
           done
           echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
 
+      - name: Create tag
+        run: |
+          git tag ${{ env.TAG_NAME }}
+          git push origin ${{ env.TAG_NAME }}
+
       - name: Trigger build workflow
         uses: benc-uk/workflow-dispatch@v1
         with:
