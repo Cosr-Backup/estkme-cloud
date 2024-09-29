@@ -26,7 +26,7 @@ jobs:
       - name: Trigger build workflow
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: Docker Image.yml
+          workflow: docker.yml
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.ref }}
           inputs: '{"tag": "${{ env.tag }}"}'
