@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -21,7 +21,7 @@ jobs:
           TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
           git tag $TAG_NAME
           git push origin $TAG_NAME
-          echo "::set-output name=tag::$TAG_NAME"
+          echo "tag=$TAG_NAME" >> $GITHUB_ENV
 
       - name: Trigger build workflow
         uses: benc-uk/workflow-dispatch@v1
@@ -29,5 +29,4 @@ jobs:
           workflow: Docker Image.yml
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.ref }}
-          inputs: |
-            tag=${{ steps.create_tag.outputs.tag }}
+          inputs: '{"tag": "${{ env.tag }}"}'
