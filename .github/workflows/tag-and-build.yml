@@ -32,4 +32,4 @@ jobs:
           workflow: docker.yml
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.ref }}
-          inputs: '{"tag": "${{ env.tag }}"}'
+          inputs: '{"tag": "${{ env.TAG_NAME }}"}'
