@@ -1,32 +1,39 @@
-name: Tag and Build on PR Merge
+name: Tag and Build
 
 on:
-  pull_request:
-    types: [closed]
+  workflow_dispatch:
 
 jobs:
   tag-and-build:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Create tag
-        id: create_tag
+      - name: Generate tag name
+        id: generate_tag
         run: |
           TAG_NAME="v$(date +'%Y%m%d')"
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
-          echo "tag=$TAG_NAME" >> $GITHUB_ENV
+          COUNT=1
+          while git rev-parse $TAG_NAME >/dev/null 2>&1; do
+            TAG_NAME="${TAG_NAME}-${COUNT}"
+            COUNT=$((COUNT + 1))
+          done
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
 
-      - name: Trigger build workflow
-        uses: benc-uk/workflow-dispatch@v1
+      - name: Create tag
+        run: |
+          git tag ${{ env.TAG_NAME }}
+          git push origin ${{ env.TAG_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
         with:
-          workflow: docker.yml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.ref }}
-          inputs: '{"tag": "${{ env.tag }}"}'
+          context: .
+          push: true
+          tags: ${{ env.TAG_NAME }}
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
