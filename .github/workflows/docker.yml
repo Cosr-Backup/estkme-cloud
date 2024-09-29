@@ -51,17 +51,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Convert repository owner to lowercase
-        id: lowercase-owner
-        run: echo "lowercase_owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ env.lowercase_owner }}/estkme-cloud
+            ghcr.io/${{ github.repository_owner }}/estkme-cloud
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
@@ -69,6 +65,10 @@ jobs:
             type=semver,pattern={{major}}
             type=ref,event=branch
             type=ref,event=tag
+            
+      - name: Convert repository owner to lowercase
+        id: lowercase-owner
+        run: echo "lowercase_owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Build and push by digest
         id: build
@@ -122,16 +122,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Set repository owner
-        id: set_repo_owner
-       run: echo "lowercase_owner_1=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ env.lowercase_owner_1 }}/estkme-cloud
+            ghcr.io/${{ github.repository_owner }}/estkme-cloud
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
@@ -156,19 +152,23 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set repository owner
+        id: set_repo_owner
+        run: echo "REPO_OWNER=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1 | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
           set -x
           annotations=$(jq -cr '.annotations | map((split("=")[" + split("=")[1] + "\"") | "--annotation " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
           tags=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-          digests=$(ls -1 | sed 's/^/ghcr.io\/${{ env.lowercase_owner_1 }}\/estkme-cloud@sha256:/' | tr '\n' ' ' | tr '[:echo "Command to execute: docker buildx imagetools create $annotations $tags $digests"
+          digests=$(ls -1 | sed 's/^/ghcr.io\/${{ github.repository_owner }}\/estkme-cloud@sha256:/' | tr '\n' ' ' | tr '[:echo "Command to execute: docker buildx imagetools create $annotations $tags $digests"
           eval "docker buildx imagetools create $annotations $tags $digests"
 
       - name: Inspect image
         run: |
           docker buildx imagetools inspect docker.io/${{ secrets.DOCKERHUB_USERNAME }}/estkme-cloud:${{ steps.meta.outputs.version }}
-          docker buildx imagetools inspect ghcr.io/${{ env.lowercase_owner_1 }}/estkme-cloud:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ghcr.io/${{ github.repository_owner }}/estkme-cloud:${{ steps.meta.outputs.version }}
 
   cleanup:
     name: Cleanup
