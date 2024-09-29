@@ -155,26 +155,6 @@ jobs:
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
-        env:
-          DOCKER_METADATA_OUTPUT_JSON: |
-            {
-              "annotations": [
-                "index:org.opencontainers.image.created=2024-09-29T04:04:47.887Z",
-                "index:org.opencontainers.image.description=eSTK.me cloud enhance server written in Go.",
-                "index:org.opencontainers.image.licenses=LGPL-2.1",
-                "index:org.opencontainers.image.revision=f6968318e6ff1ad0762cf7017a57aa6b41321a9d2171c94fbbe19cca05a4cea3",
-                "index:org.opencontainers.image.source=https://github.com/Cosr-Backup/estkme-cloud",
-                "index:org.opencontainers.image.title=estkme-cloud",
-                "index:org.opencontainers.image.url=https://github.com/Cosr-Backup/estkme-cloud",
-                "index:org.opencontainers.image.version=main"
-              ],
-              "tags": [
-                "ghcr.io/cosr-backup/estkme-cloud:main",
-                "ghcr.io/cosr-backup/estkme-cloud:latest",
-                "docker.io/***/estkme-cloud:main",
-                "docker.io/***/estkme-cloud:latest"
-              ]
-            }
         run: |
           set -x
           annotations=$(jq -cr '.annotations | map((split("=")[0] + "=\"" + split("=")[1] + "\"") | "--annotation " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
