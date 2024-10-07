@@ -170,14 +170,3 @@ Please note that:
 1. All enable, disable and install notifications will be deleted after sending.
 
 2. The delete notifications will be kept in your eSTK.me eUICC.
-
-
-### Donate
-
-If you like this project, you can donate to the following addresses:
-
-USDT (TRC20): `TKEnNtXGvfQEpw1jwy42xpfDMaQLbytyEv`
-
-USDT (Polygon): `0xe13C5C8791b6c52B2c3Ecf43C7e1ab0D188684e3`
-
-Your donation will help maintain this project and our community server.
