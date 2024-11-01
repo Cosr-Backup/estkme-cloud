@@ -1,0 +1,40 @@
+name: Tag and Build on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  tag-and-build:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate tag name
+        id: generate_tag
+        run: |
+          TAG_NAME="v$(TZ=UTC-8 date +'%Y%m%d%H%M')"
+          COUNT=1
+          while git rev-parse $TAG_NAME >/dev/null 2>&1; do
+            TAG_NAME="${TAG_NAME}-${COUNT}"
+            COUNT=$((COUNT + 1))
+          done
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
+
+      - name: Create tag
+        run: |
+          git tag ${{ env.TAG_NAME }}
+          git push origin ${{ env.TAG_NAME }}
+
+      - name: Trigger build workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: docker.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.ref }}
+          inputs: '{"tag": "${{ env.TAG_NAME }}"}'

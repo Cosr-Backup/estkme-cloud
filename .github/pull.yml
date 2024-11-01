@@ -1,0 +1,7 @@
+version: "1"
+rules:                     
+  - base: upstream
+    upstream: damonto:main
+    mergeMethod: merge
+    mergeUnstable: false
+
