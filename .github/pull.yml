@@ -1,6 +1,6 @@
 version: "1"
 rules:                     
-  - base: main
+  - base: upstream
     upstream: damonto:main
     mergeMethod: merge
     mergeUnstable: false
